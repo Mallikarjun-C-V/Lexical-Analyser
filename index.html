@@ -4,142 +4,920 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexical Analyzer – DFA + Regex (PyScript)</title>
 
-    <!-- PyScript (Stable Version) -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2023.05.1/pyscript.css" />
-    <script defer src="https://pyscript.net/releases/2023.05.1/pyscript.min.js"></script>
+    <title>Lexical Analyzer – DFA + Regex</title>
+
+    <!-- PyScript -->
+    <link rel="stylesheet"
+        href="https://pyscript.net/releases/2023.05.1/pyscript.css" />
+
+    <script defer
+        src="https://pyscript.net/releases/2023.05.1/pyscript.min.js">
+    </script>
 
     <style>
-        .py-terminal { display: none !important; }
+
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            font-family: "Inter", sans-serif;
-            background: #f0f2f5;
-            color: #222;
+            font-family:
+                Inter,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(37, 99, 235, 0.12),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at bottom right,
+                    rgba(124, 58, 237, 0.10),
+                    transparent 35%
+                ),
+                #f5f7fb;
+
+            color: #1f2937;
+            min-height: 100vh;
         }
+
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
         .header {
-            background: #111827;
+            position: relative;
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a 0%,
+                    #172554 45%,
+                    #1d4ed8 100%
+                );
+
             color: white;
-            padding: 20px 35px;
-            font-size: 22px;
-            font-weight: 600;
+            padding: 30px 25px;
+
             text-align: center;
+
+            box-shadow:
+                0 8px 30px rgba(15, 23, 42, 0.20);
         }
+
+        .header::before {
+            content: "";
+            position: absolute;
+
+            width: 280px;
+            height: 280px;
+
+            border-radius: 50%;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            top: -180px;
+            left: 10%;
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+
+            width: 220px;
+            height: 220px;
+
+            border-radius: 50%;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            bottom: -150px;
+            right: 10%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-icon {
+            width: 58px;
+            height: 58px;
+
+            margin: 0 auto 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 16px;
+
+            background: rgba(255, 255, 255, 0.12);
+
+            border: 1px solid rgba(255, 255, 255, 0.18);
+
+            backdrop-filter: blur(10px);
+
+            font-size: 27px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .header h1 {
+            margin: 0;
+
+            font-size: 28px;
+            font-weight: 700;
+
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+
+            color: rgba(255, 255, 255, 0.72);
+
+            font-size: 14px;
+        }
+
+
+        /* =========================================================
+           MAIN CONTAINER
+        ========================================================= */
+
         .container {
-            max-width: 1100px;
-            margin: 35px auto;
-            padding: 25px;
+            width: min(1180px, calc(100% - 40px));
+
+            margin: 35px auto 60px;
+
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
+
+            gap: 22px;
         }
+
+
+        /* =========================================================
+           INPUT SECTION
+        ========================================================= */
+
+        .input-card {
+            background: rgba(255, 255, 255, 0.88);
+
+            border: 1px solid rgba(226, 232, 240, 0.9);
+
+            border-radius: 18px;
+
+            padding: 24px;
+
+            box-shadow:
+                0 10px 35px rgba(15, 23, 42, 0.07);
+
+            backdrop-filter: blur(12px);
+        }
+
+        .input-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-bottom: 14px;
+        }
+
+        .input-title-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background: #eff6ff;
+            color: #2563eb;
+
+            font-size: 16px;
+        }
+
+        .input-title h2 {
+            margin: 0;
+
+            font-size: 17px;
+            font-weight: 650;
+
+            color: #111827;
+        }
+
+        .input-subtitle {
+            margin: 0 0 15px;
+
+            color: #64748b;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+           TEXTAREA
+        ========================================================= */
+
         textarea {
             width: 100%;
-            height: 200px;
-            font-family: Consolas, monospace;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-        }
-        .btn {
-            padding: 10px 20px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            margin-top: 15px;
-            cursor: pointer;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 25px;
-            border: 1px solid #ddd;
-        }
-        pre {
-            background: #111827;
-            color: #e5e7eb;
-            padding: 18px;
-            border-radius: 10px;
+            height: 230px;
+
+            resize: vertical;
+
+            padding: 17px 18px;
+
+            font-family:
+                "Cascadia Code",
+                Consolas,
+                "Courier New",
+                monospace;
+
             font-size: 14px;
+            line-height: 1.65;
+
+            color: #e2e8f0;
+
+            background: #0f172a;
+
+            border: 1px solid #1e293b;
+
+            border-radius: 13px;
+
+            outline: none;
+
+            box-shadow:
+                inset 0 1px 2px rgba(0, 0, 0, 0.25);
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        textarea:focus {
+            border-color: #3b82f6;
+
+            box-shadow:
+                0 0 0 3px rgba(59, 130, 246, 0.14),
+                inset 0 1px 2px rgba(0, 0, 0, 0.25);
+        }
+
+
+        /* =========================================================
+           BUTTON
+        ========================================================= */
+
+        .btn-wrapper {
+            display: flex;
+            justify-content: flex-end;
+
+            margin-top: 17px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            padding: 12px 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+
+            color: white;
+
+            border: none;
+            border-radius: 10px;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 6px 18px rgba(37, 99, 235, 0.25);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                filter 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 10px 25px rgba(37, 99, 235, 0.35);
+
+            filter: brightness(1.05);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 15px;
+        }
+
+
+        /* =========================================================
+           CARDS
+        ========================================================= */
+
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 17px;
+
+            padding: 21px;
+
+            box-shadow:
+                0 8px 28px rgba(15, 23, 42, 0.055);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 13px 35px rgba(15, 23, 42, 0.08);
+        }
+
+        .card h3 {
+            margin: 0 0 15px;
+
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            color: #111827;
+
+            font-size: 15px;
+            font-weight: 650;
+        }
+
+        .card h3::before {
+            content: "";
+
+            width: 4px;
+            height: 18px;
+
+            border-radius: 5px;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    #2563eb,
+                    #7c3aed
+                );
+        }
+
+
+        /* =========================================================
+           WIDTH
+        ========================================================= */
+
+        .c1 {
+            width: 100%;
+        }
+
+
+        /* =========================================================
+           OUTPUT TERMINAL
+        ========================================================= */
+
+        pre {
+            margin: 0;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #0f172a,
+                    #111827
+                );
+
+            color: #dbeafe;
+
+            padding: 17px;
+
+            border-radius: 12px;
+
+            font-family:
+                "Cascadia Code",
+                Consolas,
+                "Courier New",
+                monospace;
+
+            font-size: 13px;
+
+            line-height: 1.65;
+
             white-space: pre-wrap;
+
+            overflow-x: auto;
+
+            border: 1px solid #1e293b;
+
+            min-height: 55px;
+
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.03);
         }
-        .c1{
-            width: 60%;
+
+
+        /* =========================================================
+           NUMBERED TOKEN OUTPUT
+        ========================================================= */
+
+        #finalOutput {
+            min-height: 170px;
         }
+
+
+        /* =========================================================
+           SIDE-BY-SIDE TOKEN OUTPUTS
+        ========================================================= */
+
+        .token-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 22px;
+
+            width: 100%;
+        }
+
+        .token-card {
+            min-width: 0;
+        }
+
+        .token-card.dfa {
+            border-top: 3px solid #2563eb;
+        }
+
+        .token-card.regex {
+            border-top: 3px solid #7c3aed;
+        }
+
+
+        /* =========================================================
+           FUNDAMENTAL COUNT
+        ========================================================= */
+
+        .count-card {
+            border-top: 3px solid #10b981;
+        }
+
+        #fundOutput {
+            color: #a7f3d0;
+        }
+
+
+        /* =========================================================
+           PERFORMANCE
+        ========================================================= */
+
+        .performance-card {
+            border-top: 3px solid #f59e0b;
+        }
+
+        #perfOutput {
+            color: #fde68a;
+        }
+
+
+        /* =========================================================
+           EXPRESSION STREAM
+        ========================================================= */
+
+        .expression-card {
+            border-top: 3px solid #ec4899;
+        }
+
+        #exprOutput {
+            color: #fbcfe8;
+        }
+
+
+        /* =========================================================
+           RESULT HIGHLIGHT
+        ========================================================= */
+
         .result-highlight {
             font-weight: 700;
-            color: #10b981;      /* nice green */
+
+            color: #10b981;
+
             font-size: 18px;
+
             display: block;
+
             margin-top: 10px;
+        }
+
+
+        /* =========================================================
+           SECTION LABEL
+        ========================================================= */
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 5px 10px;
+
+            margin-bottom: 12px;
+
+            border-radius: 20px;
+
+            background: #eff6ff;
+
+            color: #2563eb;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .footer {
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+
+            padding: 8px 0 20px;
+        }
+
+
+        /* =========================================================
+           SCROLLBAR
+        ========================================================= */
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 850px) {
+
+            .container {
+                width: min(100% - 24px, 700px);
+
+                margin-top: 22px;
+            }
+
+            .token-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 25px 18px;
+            }
+
+            .header h1 {
+                font-size: 23px;
+            }
+
+            .input-card,
+            .card {
+                padding: 17px;
+            }
+
+            .btn-wrapper {
+                justify-content: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+
+        @media (max-width: 500px) {
+
+            .container {
+                width: calc(100% - 18px);
+
+                gap: 15px;
+            }
+
+            .header-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header p {
+                font-size: 12px;
+            }
+
+            textarea {
+                height: 200px;
+                font-size: 12px;
+            }
+
+            pre {
+                font-size: 11px;
+                padding: 13px;
+            }
         }
 
     </style>
 </head>
 
+
 <body>
 
-<div class="header">Lexical Analyzer – DFA + Regex (Using PyScript)</div>
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
 
-<div class="container">
+    <div class="header">
 
-    <label style="font-weight:600;">Enter Your Program:</label>
-    <textarea id="codeInput">#include<stdio.h>
+        <div class="header-content">
 
-        int main() {
-            int a = 10, b = 20;
-            int c = a + b;
-            printf("Sum = %d", c);
-            return 0;
-        }
-    </textarea>
+            <div class="header-icon">
+                ⟨/⟩
+            </div>
 
-    <button class="btn" py-click="run_lexical()">Analyze Lexical</button>
+            <h1>
+                Lexical Analyzer
+            </h1>
 
-    <div class="card c1">
-        <h3>Numbered Token List</h3>
-        <pre id="finalOutput">-- output will appear here --</pre>
-    </div>
+            <p>
+                DFA + Regex Token Analysis using PyScript
+            </p>
 
-    <!-- SIDE BY SIDE TOKEN OUTPUTS -->
-    <div style="display: flex; gap: 20px; width: 100%;">
-
-        <div class="card" style="flex: 1;">
-            <h3>DFA Tokens</h3>
-            <pre id="dfaOutput"></pre>
-        </div>
-
-        <div class="card" style="flex: 1;">
-            <h3>Regex Tokens</h3>
-            <pre id="regexOutput"></pre>
         </div>
 
     </div>
 
-    <!-- NEW FUNDAMENTAL COUNT BLOCK -->
-    <div class="card c1">
-        <h3>Fundamental Token Count</h3>
-        <pre id="fundOutput">-- counts will appear here --</pre>
+
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
+
+    <div class="container">
+
+
+        <!-- INPUT -->
+
+        <div class="input-card">
+
+            <div class="input-title">
+
+                <div class="input-title-icon">
+                    ✦
+                </div>
+
+                <h2>
+                    Source Code
+                </h2>
+
+            </div>
+
+            <p class="input-subtitle">
+                Enter your C/C++ program below and analyze its lexical tokens.
+            </p>
+
+            <textarea id="codeInput">#include<stdio.h>
+
+int main() {
+    int a = 10, b = 20;
+    int c = a + b;
+    printf("Sum = %d", c);
+    return 0;
+}</textarea>
+
+            <div class="btn-wrapper">
+
+                <button
+                    class="btn"
+                    py-click="run_lexical()">
+
+                    <span class="btn-icon">▶</span>
+
+                    Analyze Lexical
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- NUMBERED TOKENS -->
+
+        <div class="card c1">
+
+            <div class="section-label">
+                <span>01</span>
+                Token Overview
+            </div>
+
+            <h3>
+                Numbered Token List
+            </h3>
+
+            <pre id="finalOutput">-- output will appear here --</pre>
+
+        </div>
+
+
+        <!-- DFA + REGEX -->
+
+        <div class="token-grid">
+
+
+            <!-- DFA -->
+
+            <div class="card token-card dfa">
+
+                <div class="section-label"
+                     style="background:#eff6ff;color:#2563eb;">
+
+                    DFA
+
+                </div>
+
+                <h3>
+                    DFA Tokens
+                </h3>
+
+                <pre id="dfaOutput"></pre>
+
+            </div>
+
+
+            <!-- REGEX -->
+
+            <div class="card token-card regex">
+
+                <div class="section-label"
+                     style="background:#f5f3ff;color:#7c3aed;">
+
+                    REGEX
+
+                </div>
+
+                <h3>
+                    Regex Tokens
+                </h3>
+
+                <pre id="regexOutput"></pre>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- FUNDAMENTAL COUNT -->
+
+        <div class="card c1 count-card">
+
+            <div class="section-label"
+                 style="background:#ecfdf5;color:#059669;">
+
+                Statistics
+
+            </div>
+
+            <h3>
+                Fundamental Token Count
+            </h3>
+
+            <pre id="fundOutput">-- counts will appear here --</pre>
+
+        </div>
+
+
+        <!-- PERFORMANCE -->
+
+        <div class="card c1 performance-card">
+
+            <div class="section-label"
+                 style="background:#fffbeb;color:#d97706;">
+
+                Benchmark
+
+            </div>
+
+            <h3>
+                Performance
+            </h3>
+
+            <pre id="perfOutput"></pre>
+
+        </div>
+
+
+        <!-- EXPRESSION STREAM -->
+
+        <div class="card c1 expression-card">
+
+            <div class="section-label"
+                 style="background:#fdf2f8;color:#db2777;">
+
+                Expression
+
+            </div>
+
+            <h3>
+                Expression Stream
+            </h3>
+
+            <pre id="exprOutput"></pre>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+
+            Lexical Analyzer • DFA & Regex • Powered by PyScript
+
+        </div>
+
+
     </div>
 
-    <div class="card c1">
-        <h3>Performance</h3>
-        <pre id="perfOutput"></pre>
-    </div>
 
-    <div class="card c1">
-        <h3>Expression Stream</h3>
-        <pre id="exprOutput"></pre>
-    </div>
-</div>
+    <!-- =========================================================
+         PYTHON
+         LOGIC PRESERVED
+    ========================================================== -->
 
+    <py-script>
 
-<!-- PYTHON -->
-<py-script>
 import js
 import asyncio
 import time
@@ -258,8 +1036,7 @@ def run_lexical():
     else:
         Element("exprOutput").write("No expression found.")
 
-</py-script>
+    </py-script>
 
 </body>
 </html>
-    
