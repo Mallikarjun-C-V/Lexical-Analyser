@@ -8,15 +8,12 @@
     <title>Lexical Analyzer – DFA + Regex</title>
 
     <!-- PyScript -->
-    <link rel="stylesheet"
-        href="https://pyscript.net/releases/2023.05.1/pyscript.css" />
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.05.1/pyscript.css" />
 
-    <script defer
-        src="https://pyscript.net/releases/2023.05.1/pyscript.min.js">
+    <script defer src="https://pyscript.net/releases/2023.05.1/pyscript.min.js">
     </script>
 
     <style>
-
         /* =========================================================
            GLOBAL
         ========================================================= */
@@ -41,16 +38,12 @@
                 sans-serif;
 
             background:
-                radial-gradient(
-                    circle at top left,
+                radial-gradient(circle at top left,
                     rgba(37, 99, 235, 0.12),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at bottom right,
+                    transparent 35%),
+                radial-gradient(circle at bottom right,
                     rgba(124, 58, 237, 0.10),
-                    transparent 35%
-                ),
+                    transparent 35%),
                 #f5f7fb;
 
             color: #1f2937;
@@ -67,12 +60,10 @@
             overflow: hidden;
 
             background:
-                linear-gradient(
-                    135deg,
+                linear-gradient(135deg,
                     #0f172a 0%,
                     #172554 45%,
-                    #1d4ed8 100%
-                );
+                    #1d4ed8 100%);
 
             color: white;
             padding: 30px 25px;
@@ -306,11 +297,9 @@
             padding: 12px 22px;
 
             background:
-                linear-gradient(
-                    135deg,
+                linear-gradient(135deg,
                     #2563eb,
-                    #4f46e5
-                );
+                    #4f46e5);
 
             color: white;
 
@@ -399,11 +388,9 @@
             border-radius: 5px;
 
             background:
-                linear-gradient(
-                    to bottom,
+                linear-gradient(to bottom,
                     #2563eb,
-                    #7c3aed
-                );
+                    #7c3aed);
         }
 
 
@@ -424,11 +411,9 @@
             margin: 0;
 
             background:
-                linear-gradient(
-                    145deg,
+                linear-gradient(145deg,
                     #0f172a,
-                    #111827
-                );
+                    #111827);
 
             color: #dbeafe;
 
@@ -689,6 +674,13 @@
             }
         }
 
+        .card h3::before {
+            transition: height 0.2s ease;
+        }
+
+        .card:hover h3::before {
+            height: 24px;
+        }
     </style>
 </head>
 
@@ -758,9 +750,7 @@ int main() {
 
             <div class="btn-wrapper">
 
-                <button
-                    class="btn"
-                    py-click="run_lexical()">
+                <button class="btn" py-click="run_lexical()">
 
                     <span class="btn-icon">▶</span>
 
@@ -800,8 +790,7 @@ int main() {
 
             <div class="card token-card dfa">
 
-                <div class="section-label"
-                     style="background:#eff6ff;color:#2563eb;">
+                <div class="section-label" style="background:#eff6ff;color:#2563eb;">
 
                     DFA
 
@@ -820,8 +809,7 @@ int main() {
 
             <div class="card token-card regex">
 
-                <div class="section-label"
-                     style="background:#f5f3ff;color:#7c3aed;">
+                <div class="section-label" style="background:#f5f3ff;color:#7c3aed;">
 
                     REGEX
 
@@ -843,8 +831,7 @@ int main() {
 
         <div class="card c1 count-card">
 
-            <div class="section-label"
-                 style="background:#ecfdf5;color:#059669;">
+            <div class="section-label" style="background:#ecfdf5;color:#059669;">
 
                 Statistics
 
@@ -863,8 +850,7 @@ int main() {
 
         <div class="card c1 performance-card">
 
-            <div class="section-label"
-                 style="background:#fffbeb;color:#d97706;">
+            <div class="section-label" style="background:#fffbeb;color:#d97706;">
 
                 Benchmark
 
@@ -883,8 +869,7 @@ int main() {
 
         <div class="card c1 expression-card">
 
-            <div class="section-label"
-                 style="background:#fdf2f8;color:#db2777;">
+            <div class="section-label" style="background:#fdf2f8;color:#db2777;">
 
                 Expression
 
@@ -918,125 +903,69 @@ int main() {
 
     <py-script>
 
-import js
-import asyncio
-import time
-from pyscript import Element
+        import js
+        import asyncio
+        import time
+        from pyscript import Element
 
-async def load_engine():
-    response = await js.fetch("lexical_engine.py")
-    code = await response.text()
-    exec(code, globals())
+        async def load_engine():
+        response = await js.fetch("lexical_engine.py")
+        code = await response.text()
+        exec(code, globals())
 
-asyncio.ensure_future(load_engine())
+        asyncio.ensure_future(load_engine())
 
-def run_lexical():
-    if "dfa_scan" not in globals():
+        def run_lexical():
+        if "dfa_scan" not in globals():
         Element("finalOutput").write("Engine loading... click again.")
         return
 
-    code = Element("codeInput").value
+        code = Element("codeInput").value
 
-    # DFA timings
-    t0 = time.perf_counter()
-    raw = dfa_scan(code)
-    t1 = time.perf_counter()
-    dfa_tokens = enrich(raw)
-    t2 = time.perf_counter()
+        # DFA timings
+        t0 = time.perf_counter()
+        raw = dfa_scan(code)
+        t1 = time.perf_counter()
+        dfa_tokens = enrich(raw)
+        t2 = time.perf_counter()
 
-    # Regex timings
-    r0 = time.perf_counter()
-    raw_r = regex_scan(code)
-    r1 = time.perf_counter()
-    regex_tokens = enrich(raw_r)
-    r2 = time.perf_counter()
+        # Regex timings
+        r0 = time.perf_counter()
+        raw_r = regex_scan(code)
+        r1 = time.perf_counter()
+        regex_tokens = enrich(raw_r)
+        r2 = time.perf_counter()
 
-    # Numbered output
-    numbered = build_numbered_token_list(dfa_tokens)
-    out = ""
-    for i, (tok, cat) in enumerate(numbered, 1):
-        out += f"{i}. {tok:<30} {cat}\n"
-    Element("finalOutput").write(out)
-
-    # DFA output
-    Element("dfaOutput").write(
-        "\n".join(f"{t.line}:{t.col}  {t.type:<20} {t.value}" for t in dfa_tokens)
-    )
-
-    # Regex output
-    Element("regexOutput").write(
-        "\n".join(f"{t.line}:{t.col}  {t.type:<20} {t.value}" for t in regex_tokens)
-    )
-
-    # FUNDAMENTAL COUNTS
-    counts = {
-        "KEYWORDS": 0,
-        "IDENTIFIERS": 0,
-        "NUMBERS": 0,
-        "OPERATORS": 0,
-        "STRINGS": 0,
-        "COMMENTS": 0,
-        "HEADERS": 0,
-        "PUNCTUATION": 0
-    }
-
-    for t in dfa_tokens:
-        if t.type == "KEYWORD": counts["KEYWORDS"] += 1
-        elif t.type == "IDENTIFIER": counts["IDENTIFIERS"] += 1
-        elif "NUMBER" in t.type: counts["NUMBERS"] += 1
-        elif "OPERATOR" in t.type: counts["OPERATORS"] += 1
-        elif "STRING" in t.type: counts["STRINGS"] += 1
-        elif "COMMENT" in t.type: counts["COMMENTS"] += 1
-        elif t.type == "HEADER": counts["HEADERS"] += 1
-        elif t.type == "PUNCTUATION": counts["PUNCTUATION"] += 1
-
-    fund_text = ""
-    for k, v in counts.items():
-        fund_text += f"{k:<15} : {v}\n"
-
-    Element("fundOutput").write(fund_text)
-
-    # -----------------------------
-    # UPDATED PERFORMANCE SECTION
-    # -----------------------------
-    dfa_total = (t2 - t0) * 1000
-    regex_total = (r2 - r0) * 1000
-
-    perf = (
-        f"DFA Scan: {(t1-t0)*1000:.4f} ms\n"
-        f"DFA Enrich: {(t2-t1)*1000:.4f} ms\n"
-        f"DFA Total: {dfa_total:.4f} ms\n\n"
-        f"Regex Scan: {(r1-r0)*1000:.4f} ms\n"
-        f"Regex Enrich: {(r2-r1)*1000:.4f} ms\n"
-        f"Regex Total: {regex_total:.4f} ms\n\n"
-    )
-
-    # Decide which is faster
-    if dfa_total < regex_total:
-        perf += "✅ Result: DFA is faster"
-    elif regex_total < dfa_total:
-        perf += "✅ Result: Regex is faster"
-    else:
-        perf += "✅ Result: Both are equal in speed"
-
-    Element("perfOutput").write(perf)
-
-    # Expression stream
-    expr_line = None
-    for line in code.splitlines():
-        if "=" in line and ";" in line:
-            expr_line = line.strip()
-            break
-
-    if expr_line:
-        stream = token_stream_for_expression(expr_line)
-        Element("exprOutput").write(
-            "\n".join(f"{t:<20} -> {v}" for t, v in stream)
-        )
-    else:
-        Element("exprOutput").write("No expression found.")
+        # Numbered output
+        numbered = build_numbered_token_list(dfa_tokens)
+        out = ""
+        for i, (tok, cat) in enumerate(numbered, 1):
+        out += f"{i}. {tok:<30} {cat}\n" Element("finalOutput").write(out) # DFA output Element("dfaOutput").write( "\n"
+            .join(f"{t.line}:{t.col} {t.type:<20} {t.value}" for t in dfa_tokens) ) # Regex output
+            Element("regexOutput").write( "\n" .join(f"{t.line}:{t.col} {t.type:<20} {t.value}" for t in regex_tokens) )
+            # FUNDAMENTAL COUNTS counts={ "KEYWORDS" : 0, "IDENTIFIERS" : 0, "NUMBERS" : 0, "OPERATORS" : 0, "STRINGS" :
+            0, "COMMENTS" : 0, "HEADERS" : 0, "PUNCTUATION" : 0 } for t in dfa_tokens: if t.type=="KEYWORD" :
+            counts["KEYWORDS"] +=1 elif t.type=="IDENTIFIER" : counts["IDENTIFIERS"] +=1 elif "NUMBER" in t.type:
+            counts["NUMBERS"] +=1 elif "OPERATOR" in t.type: counts["OPERATORS"] +=1 elif "STRING" in t.type:
+            counts["STRINGS"] +=1 elif "COMMENT" in t.type: counts["COMMENTS"] +=1 elif t.type=="HEADER" :
+            counts["HEADERS"] +=1 elif t.type=="PUNCTUATION" : counts["PUNCTUATION"] +=1 fund_text="" for k, v in
+            counts.items(): fund_text +=f"{k:<15} : {v}\n" Element("fundOutput").write(fund_text) #
+            ----------------------------- # UPDATED PERFORMANCE SECTION # ----------------------------- dfa_total=(t2 -
+            t0) * 1000 regex_total=(r2 - r0) * 1000 perf=( f"DFA Scan: {(t1-t0)*1000:.4f} ms\n" f"DFA Enrich:
+            {(t2-t1)*1000:.4f} ms\n" f"DFA Total: {dfa_total:.4f} ms\n\n" f"Regex Scan: {(r1-r0)*1000:.4f} ms\n" f"Regex
+            Enrich: {(r2-r1)*1000:.4f} ms\n" f"Regex Total: {regex_total:.4f} ms\n\n" ) # Decide which is faster if
+            dfa_total < regex_total: perf +="✅ Result: DFA is faster" elif regex_total < dfa_total: perf
+            +="✅ Result: Regex is faster" else: perf +="✅ Result: Both are equal in speed"
+            Element("perfOutput").write(perf) # Expression stream expr_line=None for line in code.splitlines(): if "="
+            in line and ";" in line: expr_line=line.strip() break if expr_line:
+            stream=token_stream_for_expression(expr_line) Element("exprOutput").write( "\n" .join(f"{t:<20} -> {v}" for
+            t, v in stream)
+            )
+            else:
+            Element("exprOutput").write("No expression found.")
 
     </py-script>
 
 </body>
+
 </html>
