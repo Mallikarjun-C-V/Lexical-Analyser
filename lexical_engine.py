@@ -257,12 +257,12 @@ def dfa_scan(source: str) -> List[Token]:
             while j < n and (source[j].isalnum() or source[j] == '_'):
                 j += 1
             val = source[start_i:j]
-            if is_keyword(val):
-                typ = "KEYWORD"
-            elif is_type(val):
+            if is_type(val):
                 typ = "TYPE"
             elif is_type_qualifier(val):
                 typ = "TYPE_QUALIFIER"
+            elif is_keyword(val):
+                typ = "KEYWORD"
             else:
                 typ = "IDENTIFIER"
             tokens.append(Token(typ, val, start_line, start_col))
@@ -682,14 +682,3 @@ def main():
     print("- The numbered token list above is built from DFA tokens with an enrichment pass.")
     print("- If you need category labels changed to exact words your sir expects (e.g., 'header' instead of 'HEADER'), tell me and I will adjust label names.")
     print("- If you want a PDF report or sample testcases, I can produce them next.")
-
-# if __name__ == "__main__":
-#     main()
-
-
-
-
-
-
-
-
