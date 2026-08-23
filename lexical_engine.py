@@ -257,12 +257,12 @@ def dfa_scan(source: str) -> List[Token]:
             while j < n and (source[j].isalnum() or source[j] == '_'):
                 j += 1
             val = source[start_i:j]
-            if is_keyword(val):
-                typ = "KEYWORD"
-            elif is_type(val):
+            if is_type(val):
                 typ = "TYPE"
             elif is_type_qualifier(val):
                 typ = "TYPE_QUALIFIER"
+            elif is_keyword(val):
+                typ = "KEYWORD"
             else:
                 typ = "IDENTIFIER"
             tokens.append(Token(typ, val, start_line, start_col))
