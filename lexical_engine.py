@@ -74,7 +74,8 @@ REGEX_TOKEN_SPEC = [
     ("CHAR", r"'(\\.|[^'\\])'"),                     # char constant
     ("NUMBER", r'\b0[xX][0-9a-fA-F]+|\b\d+(\.\d+)?([eE][+-]?\d+)?\b'), # integers & floats & hex
     ("ID", r'\b[_A-Za-z]\w*\b'),
-    ("OP", r'(>>=|<<=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|\+\+|--|==|!=|>=|<=|&&|\|\||<<|>>|->|::|[-+*/%=&|^~!?:<>])'),    ("PUNC", r'[;,\(\)\{\}\[\]]'),
+    ("OP", r'(\+\+|--|==|!=|>=|<=|&&|\|\||<<|>>|->|::|[-+*/%=&|^~!?:<>])'),
+    ("PUNC", r'[;,\(\)\{\}\[\]]'),
     ("WHITESPACE", r'\s+'),
     ("OTHER", r'.'),  # fallback single char
 ]
@@ -171,7 +172,7 @@ def dfa_scan(source: str) -> List[Token]:
             if m:
                 hdr = m.group(1)
                 tokens.append(Token("HEADER", hdr, start_line, start_col + val.find(hdr)))
-            advance(j - i)
+            i = j
             continue
 
         # Comments: // single-line
@@ -183,7 +184,7 @@ def dfa_scan(source: str) -> List[Token]:
                 j += 1
             val = source[i:j]
             tokens.append(Token("COMMENT_SINGLE", val, start_line, start_col))
-            advance(j - i)
+            i = j
             continue
 
         # Comments: /* multi-line */
@@ -196,7 +197,7 @@ def dfa_scan(source: str) -> List[Token]:
             if j < n-1:
                 val = source[i:j+2]
                 tokens.append(Token("COMMENT_MULTI", val, start_line, start_col))
-                advance(j + 2 - i)
+                i = j+2
                 continue
             else:
                 # unterminated; take rest
@@ -223,7 +224,7 @@ def dfa_scan(source: str) -> List[Token]:
                 j += 1
             val = source[i:j]
             tokens.append(Token("STRING_LITERAL", val, start_line, start_col))
-            advance(j - i)
+            i = j
             continue
 
         # Character constant
@@ -244,7 +245,7 @@ def dfa_scan(source: str) -> List[Token]:
                 j += 1
             val = source[i:j]
             tokens.append(Token("CHAR_CONSTANT", val, start_line, start_col))
-            advance(j - i)
+            i = j
             continue
 
         # Identifier or keyword (DFA)
@@ -256,16 +257,16 @@ def dfa_scan(source: str) -> List[Token]:
             while j < n and (source[j].isalnum() or source[j] == '_'):
                 j += 1
             val = source[start_i:j]
-            if is_type(val):
+            if is_keyword(val):
+                typ = "KEYWORD"
+            elif is_type(val):
                 typ = "TYPE"
             elif is_type_qualifier(val):
                 typ = "TYPE_QUALIFIER"
-            elif is_keyword(val):
-                typ = "KEYWORD"
             else:
                 typ = "IDENTIFIER"
             tokens.append(Token(typ, val, start_line, start_col))
-            advance(j - i)
+            i = j
             continue
 
         # Number: integer, float, hex (DFA-like)
@@ -304,7 +305,7 @@ def dfa_scan(source: str) -> List[Token]:
                 break
             val = source[start_i:j]
             tokens.append(Token("NUMBER", val, start_line, start_col))
-            advance(j - i)
+            i = j
             continue
 
         # Operators and punctuation (longest-match)
